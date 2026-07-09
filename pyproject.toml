@@ -38,6 +38,10 @@ target-version = "py311"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.mypy]
-python_version = "3.11"
+# NumPy publica sus stubs con sintaxis PEP 695 ("type" statement), que
+# requiere python_version >= 3.12 solo para que mypy los parsee — no implica
+# que este proyecto deje de soportar Python 3.11 en tiempo de ejecución
+# (ver `requires-python` arriba), es una limitación de los stubs de NumPy 2.x.
+python_version = "3.12"
 strict = true
 warn_unused_ignores = true
