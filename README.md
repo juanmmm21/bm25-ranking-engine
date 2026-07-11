@@ -157,6 +157,14 @@ bm25-ranking-engine search ./index "search engine" --k1 1.2 --b 0.6
 bm25-ranking-engine term-idf ./index search
 ```
 
+Try it end-to-end against the tiny fixture checked into `samples/tiny_example/`
+(a 3-document index already built by `inverted-index-builder`):
+
+```bash
+bm25-ranking-engine search samples/tiny_example/index "python search" --top-k 5
+bm25-ranking-engine term-idf samples/tiny_example/index search
+```
+
 `./index` can be either an uncompressed index directory produced by
 `inverted-index-builder` or a compressed one produced by
 `index-compression-codec` — `search`/`term-idf` detect which from

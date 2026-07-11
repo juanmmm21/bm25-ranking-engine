@@ -1,0 +1,82 @@
+{"term": "a", "document_frequency": 3, "postings": [{"doc_id": 0, "term_frequency": 4, "positions": [0, 4, 22, 35]}, {"doc_id": 1, "term_frequency": 1, "positions": [0]}, {"doc_id": 2, "term_frequency": 4, "positions": [6, 10, 24, 29]}]}
+{"term": "accented", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [23]}]}
+{"term": "algorithms", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [28]}]}
+{"term": "already", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [33]}]}
+{"term": "an", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [8]}]}
+{"term": "and", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 2, "positions": [17, 24]}]}
+{"term": "answers", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [3]}]}
+{"term": "are", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [19]}]}
+{"term": "because", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [29]}]}
+{"term": "before", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [7]}]}
+{"term": "beyond", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [28]}]}
+{"term": "building", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [7]}]}
+{"term": "but", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [12]}]}
+{"term": "by", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [6]}]}
+{"term": "capable", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [36]}]}
+{"term": "cased", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [26]}]}
+{"term": "casefold", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [18]}]}
+{"term": "common", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [23]}]}
+{"term": "containing", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [18]}]}
+{"term": "differently", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [25]}]}
+{"term": "document", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [11]}]}
+{"term": "documents", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [17]}]}
+{"term": "engine", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [2]}]}
+{"term": "enter", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [9]}]}
+{"term": "essential", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [20]}]}
+{"term": "every", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [13]}]}
+{"term": "exactly", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [13]}]}
+{"term": "for", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [25]}]}
+{"term": "html", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [37]}]}
+{"term": "in", "document_frequency": 2, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [13]}, {"doc_id": 2, "term_frequency": 2, "positions": [9, 23]}]}
+{"term": "index", "document_frequency": 3, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [10]}, {"doc_id": 1, "term_frequency": 1, "positions": [12]}, {"doc_id": 2, "term_frequency": 1, "positions": [32]}]}
+{"term": "into", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [5]}]}
+{"term": "inverted", "document_frequency": 3, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [9]}, {"doc_id": 1, "term_frequency": 1, "positions": [11]}, {"doc_id": 2, "term_frequency": 1, "positions": [31]}]}
+{"term": "is", "document_frequency": 2, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [21]}, {"doc_id": 2, "term_frequency": 1, "positions": [16]}]}
+{"term": "it", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [19]}]}
+{"term": "its", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [30]}]}
+{"term": "just", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [4]}]}
+{"term": "land", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [32]}]}
+{"term": "language", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [24]}]}
+{"term": "later", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [22]}]}
+{"term": "library", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [32]}]}
+{"term": "makes", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [18]}]}
+{"term": "maps", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [12]}]}
+{"term": "normalization", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [16]}]}
+{"term": "not", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [3]}]}
+{"term": "occurs", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [8]}]}
+{"term": "of", "document_frequency": 2, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [28]}, {"doc_id": 2, "term_frequency": 1, "positions": [33]}]}
+{"term": "on", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [33]}]}
+{"term": "parser", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [38]}]}
+{"term": "phrase", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [19]}]}
+{"term": "pipeline", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [26]}]}
+{"term": "plain", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [30]}]}
+{"term": "positional", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [0]}]}
+{"term": "possible", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [21]}]}
+{"term": "postings", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [1]}]}
+{"term": "presence", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [35]}]}
+{"term": "prototyping", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [26]}]}
+{"term": "python", "document_frequency": 2, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [20]}, {"doc_id": 1, "term_frequency": 1, "positions": [14]}]}
+{"term": "query", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [5]}]}
+{"term": "raw", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [3]}]}
+{"term": "record", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [2]}]}
+{"term": "same", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 2, "positions": [30, 35]}]}
+{"term": "search", "document_frequency": 2, "postings": [{"doc_id": 0, "term_frequency": 2, "positions": [1, 27]}, {"doc_id": 2, "term_frequency": 2, "positions": [20, 25]}]}
+{"term": "ships", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [34]}]}
+{"term": "so", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [21]}]}
+{"term": "splits", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [2]}]}
+{"term": "standard", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [31]}]}
+{"term": "term", "document_frequency": 3, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [14]}, {"doc_id": 1, "term_frequency": 1, "positions": [36]}, {"doc_id": 2, "term_frequency": 2, "positions": [7, 34]}]}
+{"term": "terms", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [6]}]}
+{"term": "text", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [4]}]}
+{"term": "that", "document_frequency": 3, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [11]}, {"doc_id": 1, "term_frequency": 1, "positions": [22]}, {"doc_id": 2, "term_frequency": 1, "positions": [5]}]}
+{"term": "the", "document_frequency": 2, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [16]}, {"doc_id": 1, "term_frequency": 3, "positions": [10, 29, 34]}]}
+{"term": "they", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [8]}]}
+{"term": "this", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [15]}]}
+{"term": "to", "document_frequency": 1, "postings": [{"doc_id": 0, "term_frequency": 1, "positions": [15]}]}
+{"term": "tokenizer", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [1]}]}
+{"term": "unicode", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [15]}]}
+{"term": "variants", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [27]}]}
+{"term": "well", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [27]}]}
+{"term": "what", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [17]}]}
+{"term": "where", "document_frequency": 1, "postings": [{"doc_id": 2, "term_frequency": 1, "positions": [14]}]}
+{"term": "word", "document_frequency": 1, "postings": [{"doc_id": 1, "term_frequency": 1, "positions": [31]}]}
