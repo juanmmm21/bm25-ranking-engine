@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bm25-ranking-engine"
-version = "0.1.0"
+version = "0.2.0"
 description = "A from-scratch implementation of the BM25 ranking algorithm for lexical relevance scoring over an inverted index."
 readme = "README.md"
 requires-python = ">=3.11"
