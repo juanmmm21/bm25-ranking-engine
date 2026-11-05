@@ -18,6 +18,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from types import TracebackType
 
+from bm25_ranking_engine.dynamic_pruning import RetrievalStrategy
 from bm25_ranking_engine.index_reader import open_index_reader
 from bm25_ranking_engine.models import BM25Params, DocumentRecord, ScoredDocument
 from bm25_ranking_engine.protocols import IndexReader
@@ -30,9 +31,17 @@ class BM25RankingPipeline:
     cierra el lector explícitamente al terminar (gestor de contexto o
     `.close()` manual — ver `../CLAUDE.md`, sección 2.E)."""
 
-    def __init__(self, index_dir: Path, params: BM25Params | None = None) -> None:
+    def __init__(
+        self,
+        index_dir: Path,
+        params: BM25Params | None = None,
+        strategy: RetrievalStrategy = RetrievalStrategy.EXHAUSTIVE,
+    ) -> None:
+        """`strategy` elige cómo se calcula el top-k (`dynamic_pruning.py`);
+        las tres dan exactamente el mismo resultado."""
         self._reader: IndexReader = open_index_reader(index_dir)
         self._scorer = BM25Scorer(self._reader, params)
+        self._strategy = strategy
 
     def __enter__(self) -> BM25RankingPipeline:
         return self
@@ -55,7 +64,7 @@ class BM25RankingPipeline:
     def search_tokens(self, query_terms: Sequence[str], *, top_k: int = 10) -> list[ScoredDocument]:
         """Contrato principal: puntúa una query ya tokenizada (por
         `query-parser-autocomplete` en producción) y devuelve el top-K."""
-        return self._scorer.score(query_terms, top_k=top_k)
+        return self._scorer.score(query_terms, top_k=top_k, strategy=self._strategy)
 
     def search_text(self, query_text: str, *, top_k: int = 10) -> list[ScoredDocument]:
         """Conveniencia para uso standalone: tokeniza `query_text` con el
