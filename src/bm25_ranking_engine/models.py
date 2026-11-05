@@ -13,6 +13,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
+from numpy.typing import NDArray
+
 
 @dataclass(frozen=True, slots=True)
 class Posting:
@@ -80,3 +83,14 @@ class ScoredDocument:
 
     doc_id: int
     score: float
+
+
+@dataclass(frozen=True, slots=True)
+class TermBlockBounds:
+    """Cotas por bloque de la posting list de un término: el bloque `i`
+    termina en `last_doc_ids[i]` y ningún documento suyo supera
+    `max_tf_parts[i]` en la parte de BM25 que no depende del IDF
+    (`tf * (k1 + 1) / (tf + k1 * norm(len))`)."""
+
+    last_doc_ids: NDArray[np.int64]
+    max_tf_parts: NDArray[np.float64]

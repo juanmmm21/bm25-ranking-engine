@@ -26,6 +26,9 @@ Recordatorio del layout de un blob (uno por término, ver el README de
 
 from __future__ import annotations
 
+import struct
+from dataclasses import dataclass
+
 from bm25_ranking_engine.models import Posting, PostingsList
 
 _CONTINUATION_BIT = 0x80
@@ -163,4 +166,104 @@ def decode_postings_list(
         positions, pos = _decode_positions(data, pos)
         postings.append(Posting(doc_id=doc_id, term_frequency=term_frequency, positions=positions))
 
+    return PostingsList(term=term, document_frequency=num_postings, postings=tuple(postings))
+
+
+# --- Formato v2 por bloques (block-max) --------------------------------------
+#
+# Reimplementación de solo lectura del layout v2 que documenta
+# `index-compression-codec` desde 0.2.0 (README, "Block-max layout"):
+#
+#     varint  num_postings
+#     varint  num_blocks
+#     -- directorio, una entrada por bloque --
+#     varint  last_doc_id_delta    respecto al último doc_id del bloque anterior
+#                                  (el primero, desde 0)
+#     varint  block_postings
+#     varint  block_byte_length
+#     varint  max_term_frequency
+#     varint  min_document_length
+#     4 bytes max_score            float32 little-endian, redondeado hacia arriba
+#     -- bloques --
+#     byte    encoding_mode
+#     varint  first_doc_id_delta   primer doc_id menos el último del bloque anterior
+#                                  (el primero, doc_id + 1)
+#     ...     doc_id_gaps, term_frequencies, posiciones como en v1
+
+_FLOAT32 = struct.Struct("<f")
+
+
+@dataclass(frozen=True, slots=True)
+class BlockDirectoryEntry:
+    last_doc_id: int
+    num_postings: int
+    byte_length: int
+    max_term_frequency: int
+    min_document_length: int
+    max_score: float
+
+
+def decode_block_directory(data: bytes) -> tuple[int, list[BlockDirectoryEntry], int]:
+    """`(num_postings, entradas, offset del primer bloque)`."""
+    num_postings, pos = decode_varint(data, 0)
+    num_blocks, pos = decode_varint(data, pos)
+    entries: list[BlockDirectoryEntry] = []
+    previous_last = 0
+    for _ in range(num_blocks):
+        delta, pos = decode_varint(data, pos)
+        block_postings, pos = decode_varint(data, pos)
+        byte_length, pos = decode_varint(data, pos)
+        max_tf, pos = decode_varint(data, pos)
+        min_length, pos = decode_varint(data, pos)
+        if pos + _FLOAT32.size > len(data):
+            raise ValueError("directorio de bloques truncado: falta max_score")
+        (max_score,) = _FLOAT32.unpack_from(data, pos)
+        pos += _FLOAT32.size
+        previous_last += delta
+        entries.append(
+            BlockDirectoryEntry(
+                last_doc_id=previous_last,
+                num_postings=block_postings,
+                byte_length=byte_length,
+                max_term_frequency=max_tf,
+                min_document_length=min_length,
+                max_score=float(max_score),
+            )
+        )
+    if sum(entry.num_postings for entry in entries) != num_postings:
+        raise ValueError("directorio de bloques inconsistente con num_postings")
+    return num_postings, entries, pos
+
+
+def decode_block_postings_list(
+    term: str, document_frequency: int, data: bytes, *, block_size: int
+) -> PostingsList:
+    num_postings, entries, pos = decode_block_directory(data)
+    if num_postings != document_frequency:
+        raise ValueError(
+            f"inconsistencia de índice para '{term}': el directorio declara "
+            f"document_frequency={document_frequency}, el blob codifica {num_postings}"
+        )
+    postings: list[Posting] = []
+    previous_last = -1
+    for entry in entries:
+        block_start = pos
+        mode = data[pos]
+        if mode not in (_MODE_VARINT, _MODE_PACKED):
+            raise ValueError(f"modo de codificación desconocido para '{term}': {mode}")
+        first_delta, pos = decode_varint(data, pos + 1)
+        if mode == _MODE_PACKED:
+            gaps, pos = _decode_packed_block(data, pos, entry.num_postings - 1, block_size)
+        else:
+            gaps, pos = _decode_varint_block(data, pos, entry.num_postings - 1)
+        doc_ids = _cumulative_sum(previous_last + first_delta, gaps)
+        frequencies, pos = _decode_varint_block(data, pos, entry.num_postings)
+        for doc_id, term_frequency in zip(doc_ids, frequencies, strict=True):
+            positions, pos = _decode_positions(data, pos)
+            postings.append(
+                Posting(doc_id=doc_id, term_frequency=term_frequency, positions=positions)
+            )
+        if pos - block_start != entry.byte_length or doc_ids[-1] != entry.last_doc_id:
+            raise ValueError(f"bloque corrupto en '{term}': no coincide con su directorio")
+        previous_last = entry.last_doc_id
     return PostingsList(term=term, document_frequency=num_postings, postings=tuple(postings))

@@ -28,11 +28,23 @@ from typing import Any, Final
 import numpy as np
 from numpy.typing import NDArray
 
-from bm25_ranking_engine.compressed_postings_codec import decode_postings_list
-from bm25_ranking_engine.models import DocumentRecord, Posting, PostingsList
+from bm25_ranking_engine.compressed_postings_codec import (
+    decode_block_directory,
+    decode_block_postings_list,
+    decode_postings_list,
+)
+from bm25_ranking_engine.models import (
+    BM25Params,
+    DocumentRecord,
+    Posting,
+    PostingsList,
+    TermBlockBounds,
+)
 from bm25_ranking_engine.protocols import IndexReader
 
 _MANIFEST_FILENAME: Final[str] = "manifest.json"
+_SEGMENTS_MANIFEST_FILENAME: Final[str] = "segments.json"
+_SUPPORTED_COMPRESSED_VERSIONS: Final[frozenset[int]] = frozenset({1, 2})
 
 
 def _read_manifest(index_dir: Path) -> dict[str, Any]:
@@ -155,7 +167,18 @@ class CompressedIndexReader:
 
     def __init__(self, index_dir: Path) -> None:
         manifest = _read_manifest(index_dir)
+        self._format_version = int(manifest["format_version"])
+        if self._format_version not in _SUPPORTED_COMPRESSED_VERSIONS:
+            raise ValueError(
+                f"formato de índice comprimido no soportado: version {self._format_version}"
+            )
         self._block_size = int(manifest["block_size"])
+        block_max = manifest.get("block_max")
+        self._block_max_params = (
+            BM25Params(k1=float(block_max["k1"]), b=float(block_max["b"]))
+            if self._format_version == 2 and block_max is not None
+            else None
+        )
         self._documents, self._document_lengths = _load_documents(
             index_dir, str(manifest["documents_file"])
         )
@@ -197,19 +220,123 @@ class CompressedIndexReader:
             return None
 
         offset, length, document_frequency = entry
+        data = self._read(term, offset, length)
+        if self._format_version == 2:
+            return decode_block_postings_list(
+                term, document_frequency, data, block_size=self._block_size
+            )
+        return decode_postings_list(term, document_frequency, data, block_size=self._block_size)
+
+    def _read(self, term: str, offset: int, length: int) -> bytes:
         self._file.seek(offset)
         data = self._file.read(length)
         if len(data) != length:
             raise ValueError(
                 f"lectura truncada para '{term}': esperados {length} bytes, leídos {len(data)}"
             )
-        return decode_postings_list(term, document_frequency, data, block_size=self._block_size)
+        return data
+
+    def block_bounds(self, term: str, params: BM25Params) -> TermBlockBounds | None:
+        """Cotas por bloque precalculadas del formato v2, sin decodificar
+        postings. Si `params` coincide con los del índice se usa `max_score`
+        (la cota exacta); si no, `tf_part(max_tf, min_len)`, válida para
+        cualquier `k1`/`b`. `None` en un índice v1 o un término ausente."""
+        entry = self._terms.get(term)
+        if self._format_version != 2 or entry is None:
+            return None
+        offset, length, _ = entry
+        _, directory, _ = decode_block_directory(self._read(term, offset, length))
+        last_doc_ids = np.array([block.last_doc_id for block in directory], dtype=np.int64)
+        if params == self._block_max_params:
+            bounds = np.array([block.max_score for block in directory], dtype=np.float64)
+        else:
+            max_tf = np.array([block.max_term_frequency for block in directory], dtype=np.float64)
+            min_len = np.array([block.min_document_length for block in directory], dtype=np.float64)
+            norm = 1.0 - params.b + params.b * (min_len / self._average_document_length)
+            bounds = max_tf * (params.k1 + 1.0) / (max_tf + params.k1 * norm)
+        return TermBlockBounds(last_doc_ids=last_doc_ids, max_tf_parts=bounds)
 
     def document(self, doc_id: int) -> DocumentRecord | None:
         return self._documents.get(doc_id)
 
     def close(self) -> None:
         self._file.close()
+
+
+class SegmentedIndexReader:
+    """Lee un índice segmentado de `inverted-index-builder` (>= 0.2.0,
+    `segments.json`, formato segmentado v1), reimplementado aquí a partir de
+    su README sin importar ese paquete: cada segmento es un directorio v1
+    normal, y los `doc_id` listados en sus tombstones se ignoran.
+
+    Las estadísticas que necesita BM25 se recalculan sobre los documentos
+    vivos de todos los segmentos — el `stats.json` de cada segmento describe
+    solo ese segmento, y un documento borrado no debe seguir contando en `N`,
+    en la longitud media ni en la frecuencia de documento de sus términos."""
+
+    def __init__(self, index_dir: Path) -> None:
+        manifest = json.loads((index_dir / _SEGMENTS_MANIFEST_FILENAME).read_text("utf-8"))
+        if manifest.get("format") != "beacon-segmented-index":
+            raise ValueError(f"{index_dir} no es un índice segmentado")
+        if int(manifest.get("format_version", -1)) != 1:
+            raise ValueError(
+                f"formato segmentado no soportado: version {manifest.get('format_version')}"
+            )
+        documents: dict[int, DocumentRecord] = {}
+        postings_by_term: dict[str, list[Posting]] = {}
+        for segment in manifest["segments"]:
+            segment_dir = index_dir / str(segment["name"])
+            deleted: set[int] = set()
+            if segment.get("deletes_file"):
+                deletes = json.loads((index_dir / str(segment["deletes_file"])).read_text("utf-8"))
+                deleted = {int(doc_id) for doc_id in deletes["deleted_doc_ids"]}
+            reader = PlainIndexReader(segment_dir)
+            for doc_id, record in reader._documents.items():
+                if doc_id not in deleted:
+                    documents[doc_id] = record
+            for term, postings_list in reader._postings_lists.items():
+                live = [p for p in postings_list.postings if p.doc_id not in deleted]
+                if live:
+                    postings_by_term.setdefault(term, []).extend(live)
+
+        self._documents = documents
+        self._postings_lists: dict[str, PostingsList] = {}
+        for term, postings in postings_by_term.items():
+            postings.sort(key=lambda posting: posting.doc_id)
+            self._postings_lists[term] = PostingsList(
+                term=term, document_frequency=len(postings), postings=tuple(postings)
+            )
+        self._document_lengths = np.zeros(max(documents, default=-1) + 1, dtype=np.int64)
+        for doc_id, record in documents.items():
+            self._document_lengths[doc_id] = record.length
+        self._total_documents = len(documents)
+        self._average_document_length = (
+            float(sum(record.length for record in documents.values())) / len(documents)
+            if documents
+            else 0.0
+        )
+
+    @property
+    def total_documents(self) -> int:
+        return self._total_documents
+
+    @property
+    def average_document_length(self) -> float:
+        return self._average_document_length
+
+    @property
+    def document_lengths(self) -> NDArray[np.int64]:
+        return self._document_lengths
+
+    def lookup(self, term: str) -> PostingsList | None:
+        return self._postings_lists.get(term)
+
+    def document(self, doc_id: int) -> DocumentRecord | None:
+        return self._documents.get(doc_id)
+
+    def close(self) -> None:
+        """No-op: todo se carga en memoria en el constructor."""
+        return None
 
 
 def open_index_reader(index_dir: Path) -> IndexReader:
@@ -220,6 +347,8 @@ def open_index_reader(index_dir: Path) -> IndexReader:
     llamador es responsable de invocar `.close()` cuando termine (`pipeline.py`
     lo hace vía `contextlib.closing`), igual que exige `../CLAUDE.md`, sección 2.E.
     """
+    if (index_dir / _SEGMENTS_MANIFEST_FILENAME).exists():
+        return SegmentedIndexReader(index_dir)
     manifest = _read_manifest(index_dir)
     if "terms_file" in manifest:
         return CompressedIndexReader(index_dir)
